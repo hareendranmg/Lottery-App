@@ -13,11 +13,13 @@ import {
   Body,
 } from 'native-base';
 import {WebView} from 'react-native-webview';
+import Spinner from 'react-native-spinkit';
 
 export default class AnatomyExample extends Component {
   state = {
     lottery_det: [],
     link: '',
+    loading: true,
   };
 
   componentDidMount() {
@@ -25,10 +27,10 @@ export default class AnatomyExample extends Component {
   }
 
   getLotteryDet = () => {
-    fetch('https://manal.ml/get_lottery.php')
+    fetch('https://hmg-lottery.herokuapp.com')
       .then(response => response.json())
       .then(jsonRes => {
-        this.setState({lottery_det: jsonRes});
+        this.setState({lottery_det: jsonRes, loading: false});
         console.log(jsonRes);
       })
       .catch(function(error) {
@@ -37,7 +39,7 @@ export default class AnatomyExample extends Component {
   };
 
   showLotteries = () => {
-    return this.state.lottery_det.map((item, key) => (
+    return this.state.lottery_det.map(item => (
       <ListItem avatar>
         <Left>
           <Text>{item.No}</Text>
@@ -48,7 +50,7 @@ export default class AnatomyExample extends Component {
         <Right>
           <TouchableOpacity
             onPress={() => this.setState({link: item.lottery_link})}>
-            <Text style={styles.link}>View</Text>
+            <Text style={styles.button}>View</Text>
           </TouchableOpacity>
         </Right>
       </ListItem>
@@ -71,22 +73,37 @@ export default class AnatomyExample extends Component {
         <Container>
           <Content>
             <View style={styles.container}>
-              <Card style={styles.card_container}>
-                <List>
-                  <ListItem avatar>
-                    <Left>
-                      <Text>No</Text>
-                    </Left>
-                    <Body>
-                      <Text>Lottery Name</Text>
-                    </Body>
-                    <Right>
-                      <Text>View</Text>
-                    </Right>
-                  </ListItem>
-                  {this.showLotteries()}
-                </List>
-              </Card>
+              {this.state.loading ? (
+                <View
+                  style={{
+                    marginVertical: 200,
+                    alignItems: "center",
+                  }}>
+                  <Spinner
+                    isVisible={this.state.loading}
+                    size={250}
+                    type={'9CubeGrid'}
+                    color={'#589895'}
+                  />
+                </View>
+              ) : (
+                <Card style={styles.card_container}>
+                  <List>
+                    <ListItem avatar>
+                      <Left>
+                        <Text>No</Text>
+                      </Left>
+                      <Body>
+                        <Text>Lottery Name</Text>
+                      </Body>
+                      <Right>
+                        <Text>View</Text>
+                      </Right>
+                    </ListItem>
+                    {this.showLotteries()}
+                  </List>
+                </Card>
+              )}
             </View>
           </Content>
         </Container>
@@ -97,11 +114,16 @@ export default class AnatomyExample extends Component {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     marginHorizontal: 15,
     marginVertical: 50,
   },
-  link: {
-    color: '#589895',
+  button: {
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 5,
+    backgroundColor: '#589895',
+    color: 'white',
     textAlign: 'right',
   },
 });
